@@ -2,7 +2,25 @@ const User = require('../models/User');
 
 const getUsers = async (req, res, next) => {
     try {
-        const result = await User.find();
+        //query parameter 
+        const options = {};
+
+        // check if the req query is empty?
+        if (Object.keys(req.query).length) {
+            const {
+                sortByFirstName,
+                limit
+            } = req.query
+
+            //set up our pagination
+            if(limit) options.limit = limit
+
+            if(sortByFirstName) options.sort = {
+                firstName: sortByFirstName == 'asc' ? -1 : 1
+            }
+        }
+
+        const result = await User.find({}, {}, options);
 
         res
         .status(200)
