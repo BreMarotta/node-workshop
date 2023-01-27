@@ -41,7 +41,7 @@ const UserSchema = new Schema({
     timestamps: true
 })
 
-//pre-hook
+//pre-hook middlewares that happen automatically!
 UserSchema.pre('save', async function(next) {
     if (!this.isModified('password')) {
         next();
@@ -50,5 +50,11 @@ UserSchema.pre('save', async function(next) {
     const salt = await bcrypt.genSalt(10);
     this.password = await bcrypt.hash(this.password, salt);
 })
+
+UserSchema.methods.getSignedJwtToken = function() {
+    return jwt.sign({ id: this._id }, process.env.JWT_SECRET, {
+        expiresIn: process.env.JWT_EXPIRE
+    })
+}
 
 module.exports =mongoose.model('User', UserSchema);

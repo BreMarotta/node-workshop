@@ -33,12 +33,19 @@ const getUsers = async (req, res, next) => {
 
 const createUser = async (req, res, next) => {
     try{
-        const result = await User.create(req.body)
+        const user = await User.create(req.body)
+        const token = user.getSignedJwtToken();
+
+        const options = {
+            expires: new Date(Date.now() + process.env.JWT_COOKIE_EXPIRE * 1000 * 60)
+        }
 
         res
         .status(200)
         .setHeader('Content-Type', 'application/json')
-        .json(result)
+        .cookie('token', token, options)
+        .json({ success: true, token, user })
+        
 
     } catch (error) {
         throw new Error(`Error creating user: ${error.message}`)
